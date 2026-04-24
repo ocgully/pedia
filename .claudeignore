@@ -1,0 +1,4 @@
+# pedia's own repo has no .pedia/ (consumers do). This file exists so
+# consumers that install pedia as a dep see the pattern we expect them
+# to adopt.
+.pedia/

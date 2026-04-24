@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pedia"
+version = "0.1.0"
+description = "Deterministic knowledge + specs + context for LLM agents. Third leg of the agent-infrastructure tripod alongside mercator (code) and hopewell (work)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Christopher Gulliver" }]
+keywords = ["pedia", "knowledge", "specs", "llm", "agents", "documentation", "sqlite", "fts5", "bm25", "wiki"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Documentation",
+  "Topic :: Text Processing :: Markup :: Markdown",
+  "Topic :: Utilities",
+]
+
+# Core is stdlib-only. No runtime dependencies.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/ocgully/pedia"
+Repository = "https://github.com/ocgully/pedia"
+Issues = "https://github.com/ocgully/pedia/issues"
+
+[project.scripts]
+pedia = "pedia.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pedia*"]
