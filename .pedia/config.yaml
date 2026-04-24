@@ -1,0 +1,18 @@
+version: 1
+token_approx_chars_per_token: 4
+query:
+  default_limit: 10
+  default_token_budget: 2000
+  universal_reserve: 500
+# External-system deep-link templates (used by `pedia web`).
+# The wiki advertises the URL; it does not fetch external content.
+external_links:
+  hopewell:
+    template: "http://localhost:8765/#/doc/{id}"
+    link_when: "block front-matter has hopewell_id OR block cites [[hw:HW-NNNN]]"
+  github_issues:
+    template: "https://github.com/{repo}/issues/{id}"
+  jira:
+    template: "https://{instance}.atlassian.net/browse/{id}"
+  github_code:
+    template: "https://github.com/{repo}/blob/{sha}/{path}#L{line}"

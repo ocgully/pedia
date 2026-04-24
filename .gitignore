@@ -26,6 +26,7 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# This project does not ship any consumer's `.pedia/` directory -- those
-# are per-project state, not source.
-.pedia/
+# Pedia self-dogfoods: this repo's OWN .pedia/ content (specs, ADRs,
+# constitution, north-star) IS source-controlled. Only the derivative
+# SQLite index is excluded — it's rebuildable via `pedia refresh`.
+.pedia/index.sqlite

@@ -2,3 +2,6 @@
 # consumers that install pedia as a dep see the pattern we expect them
 # to adopt.
 .pedia/
+
+# pedia:managed -- agents must query via the `pedia` CLI, never read .pedia/ directly
+.pedia/
