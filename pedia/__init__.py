@@ -8,4 +8,4 @@ Third leg of the agent-infrastructure tripod:
 See README.md and docs/architecture.md for the full picture.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

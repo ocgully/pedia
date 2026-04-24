@@ -38,10 +38,11 @@ pedia check                       # validate schemas + wiki links
 pedia hooks install --git --claude-code --scope project
 ```
 
-## CLI reference (phase 1)
+## CLI reference
 
 ```
-pedia init [--with-examples]
+pedia init [--with-examples] [--backfill | --no-backfill]
+pedia backfill [--source DIR] [--url URL] [--depth N] [--dry-run] [--report-only]
 pedia add --type {spec|decision|north-star|constitution|prd|tr|plan|documentation} --path <file>
 pedia query <search> [--type T] [--scope universal] [--token-budget N] [--exclude ID,ID] [--format text|json]
 pedia get <block-id> [--format text|json]
@@ -53,6 +54,34 @@ pedia hooks install [--git] [--claude-code] [--settings-path PATH] [--scope user
 pedia hooks uninstall [--git] [--claude-code]
 pedia block-id <path>[:heading]
 ```
+
+## Backfill — adopt an existing repo
+
+`pedia init` auto-fires `pedia backfill` when the project already has
+discoverable documentation (README, docs/, specs/, ADRs, a SpecKit
+`.specify/memory/constitution.md`, etc.). The spider classifies each
+source to a Pedia doc type and writes it under `.pedia/`:
+
+| Source                                       | Pedia location                         |
+|----------------------------------------------|----------------------------------------|
+| `specs/NNN-slug/spec.md` (SpecKit)           | `specs/NNN-slug/spec.md`               |
+| `specs/NNN-slug/plan.md`                     | `specs/NNN-slug/plan.md`               |
+| `docs/adr/*.md`, `docs/decisions/*.md`, ADR-shaped | `decisions/<slug>.md`            |
+| `.specify/memory/constitution.md`, `constitution/**/*.md`, `*tenets*`, `*principles*` | `constitution/<slug>.md` |
+| `*north-star*`, `*charter*`, `*mission*`     | `north-stars/<slug>.md`                |
+| `*vision*`                                   | `vision/<slug>.md`                     |
+| `*prd*`, `*product-requirements*`            | `prds/<slug>.md`                       |
+| `*technical-requirements*`, `*non-functional*` | `technical-requirements/<slug>.md`   |
+| `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `ARCHITECTURE.md` | `docs/imported/<slug>.md` |
+| everything else under `docs/` or top level   | `docs/imported/<path-context>.md`      |
+
+Backfill is **idempotent** — it stamps a `backfill_source_hash` into
+each ingested doc's front-matter and skips unchanged sources on re-run.
+
+Run `pedia backfill --dry-run` to preview the plan, `--report-only` to
+classify without writing, or `--url <seed>` to crawl an external docs
+site (stdlib-only HTTP, same-origin BFS, depth-bounded, robots.txt
+honored).
 
 ## Response shape
 

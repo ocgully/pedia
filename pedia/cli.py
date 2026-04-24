@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from pedia import __version__
+from pedia import backfill as backfill_mod
+from pedia import backfill_fs as backfill_fs_mod
 from pedia import config as cfg
 from pedia import doctypes
 from pedia import hooks as hooks_mod
@@ -196,7 +198,57 @@ def cmd_init(args) -> int:
     sys.stdout.write(f"Initialized Pedia at {base}\n")
     if args.with_examples:
         sys.stdout.write("Seeded example docs: north-star, constitution, spec, decision\n")
+
+    # Auto-fire backfill when the project has discoverable sources.
+    # `--no-backfill` suppresses this; `--backfill` forces it.
+    want_backfill = getattr(args, "backfill", None)
+    if want_backfill is None:
+        # default: fire when sources are discoverable
+        want_backfill = backfill_fs_mod.has_discoverable_sources(root)
+    if want_backfill:
+        sys.stdout.write("Running pedia backfill (auto-discovered sources)...\n")
+        report = backfill_mod.run_backfill(root)
+        sys.stdout.write(report.to_text())
+
     sys.stdout.write("Next: run `pedia refresh` to build the index.\n")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# backfill
+# ---------------------------------------------------------------------------
+
+
+def cmd_backfill(args) -> int:
+    # Find the project root: prefer an existing .pedia/, else walk up to a .git/
+    root = cfg.find_pedia_root()
+    if root is None:
+        # fall back to nearest .git/
+        cur = Path.cwd().resolve()
+        while True:
+            if (cur / ".git").exists():
+                root = cur
+                break
+            if cur.parent == cur:
+                root = Path.cwd().resolve()
+                break
+            cur = cur.parent
+    source_dir = Path(args.source).resolve() if args.source else None
+    report = backfill_mod.run_backfill(
+        root,
+        source_dir=source_dir,
+        url=args.url,
+        depth=args.depth,
+        dry_run=bool(args.dry_run),
+        report_only=bool(args.report_only),
+    )
+    # dry-run / report-only: enumerate items so humans see what would happen
+    if args.dry_run or args.report_only:
+        for status, dest, reason in report.items[:50]:
+            sys.stdout.write(f"  [{status}] {dest}  -- {reason}\n")
+        if len(report.items) > 50:
+            sys.stdout.write(f"  ... {len(report.items) - 50} more\n")
+    sys.stdout.write(report.to_text())
     return 0
 
 
@@ -492,7 +544,29 @@ def _build_parser() -> argparse.ArgumentParser:
     # init
     sp = sub.add_parser("init", help="Initialize .pedia/ in the current directory")
     sp.add_argument("--with-examples", action="store_true")
+    bf_group = sp.add_mutually_exclusive_group()
+    bf_group.add_argument(
+        "--backfill", dest="backfill", action="store_true",
+        default=None,
+        help="Force-run backfill after init (default: auto-run if sources discoverable)",
+    )
+    bf_group.add_argument(
+        "--no-backfill", dest="backfill", action="store_false",
+        help="Skip the auto-backfill step",
+    )
     sp.set_defaults(func=cmd_init)
+
+    # backfill
+    sp = sub.add_parser(
+        "backfill",
+        help="Spider existing docs (filesystem and/or website) into .pedia/",
+    )
+    sp.add_argument("--source", default=None, help="Directory to spider (default: CWD / repo root)")
+    sp.add_argument("--url", default=None, help="Website seed URL to crawl")
+    sp.add_argument("--depth", type=int, default=3, help="Crawl depth (web mode, default 3)")
+    sp.add_argument("--dry-run", action="store_true", help="Show what would be written; don't touch disk")
+    sp.add_argument("--report-only", action="store_true", help="Classify + list, don't write anything")
+    sp.set_defaults(func=cmd_backfill)
 
     # add
     sp = sub.add_parser("add", help="Import a markdown file as a given doc type")
