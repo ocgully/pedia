@@ -36,7 +36,49 @@ pedia trace <block-id> --up       # what led to this?
 pedia trace <block-id> --down     # what cites this?
 pedia check                       # validate schemas + wiki links
 pedia hooks install --git --claude-code --scope project
+pedia web --port 8766 --open      # read-only wiki view for humans
 ```
+
+## Wiki view — the human-facing browser
+
+Agents query through the CLI. Humans prefer to browse. `pedia web`
+starts a local, read-only web UI on top of the same FTS5 index and
+graph tables the CLI uses — no alternate search path, no alternate
+storage.
+
+```bash
+pedia web --port 8766 --open
+```
+
+Features:
+
+- **TOC** — one card per doc type (north-stars, vision, constitution,
+  specs, PRDs, technical requirements, plans, decisions, docs).
+- **Doc view** — renders markdown with `[[wiki-links]]` clickable;
+  right-hand panel shows "what this cites" + "what cites this" for
+  bidirectional impact.
+- **Block deep links** — `#/block/<id>` is a shareable URL.
+- **Search** — header bar hits `/api/query`, which calls
+  `pedia.query.run_query` (same code the CLI uses). Universal context,
+  matches, and see-also all preserved.
+- **Graph view** — interactive dep/prov graph around any block, laid
+  out with elkjs (layered, LR). Click a node to deep-link to it.
+- **Thread of impact** — `#/trace/<id>` walks upstream AND downstream
+  from a block, showing every source and every consumer per layer.
+- **External-system deep links** — configurable outbound URI templates
+  in `.pedia/config.yaml` (hopewell, GitHub issues, JIRA, GitHub code).
+  The wiki advertises the URL; it never fetches external content.
+
+Read-only by design:
+
+- No auth, no WYSIWYG, no multi-user editing.
+- Every endpoint is `GET`.
+- Mutations go through the `pedia` CLI (`pedia add`, `pedia refresh`,
+  etc.) or direct markdown edits.
+
+Stack: stdlib `http.server` + `sqlite3` on the server; Preact +
+`marked` + `@xyflow/react` via esm.sh on the client. Same dependency
+set as the Hopewell canvas so the two tools look and feel consistent.
 
 ## CLI reference
 
@@ -53,6 +95,7 @@ pedia check
 pedia hooks install [--git] [--claude-code] [--settings-path PATH] [--scope user|project]
 pedia hooks uninstall [--git] [--claude-code]
 pedia block-id <path>[:heading]
+pedia web [--port N] [--host HOST] [--open]
 ```
 
 ## Backfill — adopt an existing repo

@@ -206,11 +206,72 @@ in `.pedia/config.yaml` is the knob). Agents that care about exact
 token counts re-estimate in their own process; Pedia's budget is a
 coarse-but-deterministic ceiling.
 
-## 9. Non-goals in phase 1
+## 9. Wiki view -- human-facing web UI (HW-0046, phase 2)
 
-- Web UI (phase 2, tracked as HW-0046)
+`pedia web` starts a local, read-only web UI on top of the same tables
+`pedia query` reads. Humans browse; the CLI stays the canonical
+interface for agents.
+
+### 9.1 Server
+
+Stdlib `http.server` + `socketserver.ThreadingMixIn`. No FastAPI, no
+watchdog, no SSE -- Pedia is commit-paced (re-indexing happens on
+`pedia refresh` / git post-commit hook), so refresh-on-page-load is a
+sufficient freshness story. All endpoints are GET; there are no
+POST/PUT/PATCH routes anywhere in `pedia.web.server`.
+
+| Route                                   | Backed by                                  |
+|-----------------------------------------|--------------------------------------------|
+| `GET /api/toc`                          | `blocks` grouped by `doc_type`             |
+| `GET /api/doc?path=<path>`              | raw markdown + `get_blocks_for_doc` + refs |
+| `GET /api/block/<id>`                   | `get_block` + `refs` (both directions)     |
+| `GET /api/query?q=<q>&budget=N&limit=N` | `pedia.query.run_query` (same as CLI)      |
+| `GET /api/trace?block=<id>&depth=N`     | `pedia.trace.walk` up + down               |
+| `GET /api/graph?block=<id>&depth=N`     | BFS on `refs`, React-Flow-shaped           |
+| `GET /api/external-links`               | `external_links` from `.pedia/config.yaml` |
+| `GET /api/meta`                         | project root + pedia version               |
+
+All API responses are deterministic: same DB + same request = same
+bytes. No embedding, no ranking model, no semantic rewrite.
+
+### 9.2 Client
+
+Preact 10.22 + `marked` 12 + `@xyflow/react` 12.3.6 + `elkjs` 0.9.3,
+all loaded as ES modules from esm.sh. No bundler; no npm; no build
+step. The graph view uses the exact same incantation the Hopewell
+canvas uses (`?alias=react:preact/compat,react-dom:preact/compat&deps=preact@10.22.0`)
+so opening both UIs in one browser doesn't produce two preact
+instances with cross-talking hook registries.
+
+`[[wiki-links]]` are preprocessed into `<a>` anchors with classes
+`wikilink` / `wikilink-unresolved` before `marked` runs, so the link
+survives tokenization intact.
+
+### 9.3 Routing (hash-based)
+
+| Hash                    | View                                     |
+|-------------------------|------------------------------------------|
+| `#/`                    | TOC (doc-type groups)                    |
+| `#/doc/<path>`          | Doc view (markdown + refs panel)         |
+| `#/block/<id>`          | Block deep link (shareable)              |
+| `#/search?q=<q>`        | FTS5 results                             |
+| `#/graph/<id>`          | React Flow graph around `<id>`           |
+| `#/trace/<id>`          | Collapsible upstream + downstream tree   |
+
+### 9.4 External-system deep links
+
+Configurable in `.pedia/config.yaml` under `external_links`. A template
+activates when the doc's front-matter carries the matching key
+(`hopewell_id`, `github_issue`/`issue_id`, `jira_key`, `source_path`).
+The UI advertises the URL; it never fetches external content. The wiki
+stays offline-first.
+
+## 10. Non-goals
+
+- Auth / multi-user editing (the wiki is READ-only)
+- Live push updates (commit-paced; browser refresh is enough)
+- WYSIWYG markdown editing (mutations go through CLI + editor)
 - Embedding search (phase 5 optional add-on)
 - Cross-project federation (phase 5)
-- SpecKit importer (phase 3)
+- SpecKit importer (phase 3; separate ticket)
 - Fuzzy / semantic query rewriting
-- Live collaboration / write UI

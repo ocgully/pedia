@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedia wiki</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Pedia <span id="project-root" class="muted"></span></h1>
+    <nav class="tabs">
+      <a class="tab" href="#/">TOC</a>
+      <a class="tab" href="#/search">Search</a>
+    </nav>
+    <form id="searchbox" class="searchbox" onsubmit="return false">
+      <input id="searchq" type="search" placeholder="Search the index (FTS5)...">
+    </form>
+    <div class="right">
+      <span id="pedia-version" class="metric muted" title="Pedia version"></span>
+    </div>
+  </header>
+  <main id="app"></main>
+  <footer class="bottom">
+    <span class="muted" id="footer-info">read-only wiki — mutations via the `pedia` CLI</span>
+  </footer>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

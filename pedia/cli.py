@@ -146,6 +146,18 @@ query:
   default_limit: 10
   default_token_budget: 2000
   universal_reserve: 500
+# External-system deep-link templates (used by `pedia web`).
+# The wiki advertises the URL; it does not fetch external content.
+external_links:
+  hopewell:
+    template: "http://localhost:8765/#/doc/{id}"
+    link_when: "block front-matter has hopewell_id OR block cites [[hw:HW-NNNN]]"
+  github_issues:
+    template: "https://github.com/{repo}/issues/{id}"
+  jira:
+    template: "https://{instance}.atlassian.net/browse/{id}"
+  github_code:
+    template: "https://github.com/{repo}/blob/{sha}/{path}#L{line}"
 """
 
 
@@ -503,6 +515,24 @@ def cmd_hooks_uninstall(args) -> int:
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# web (read-only wiki view -- HW-0046)
+# ---------------------------------------------------------------------------
+
+
+def cmd_web(args) -> int:
+    root = _require_root(args)
+    # lazy import so `pedia --version` etc. don't pull http.server
+    from pedia.web import server as web_server
+
+    return web_server.run(
+        root,
+        port=int(args.port),
+        open_browser=bool(args.open),
+        host=args.host,
+    )
+
+
 def cmd_block_id(args) -> int:
     root = _require_root(args)
     spec = args.target
@@ -650,6 +680,15 @@ def _build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("block-id", help="Resolve a block id from `path` or `path:heading`")
     sp.add_argument("target")
     sp.set_defaults(func=cmd_block_id)
+
+    # web -- read-only wiki view (HW-0046)
+    sp = sub.add_parser("web", help="Start a local read-only web UI for humans")
+    sp.add_argument("--port", type=int, default=8766)
+    sp.add_argument("--host", default="127.0.0.1")
+    sp.add_argument(
+        "--open", action="store_true", help="Open the UI in a browser once the server starts"
+    )
+    sp.set_defaults(func=cmd_web)
 
     return p
 
