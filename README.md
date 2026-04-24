@@ -1,8 +1,46 @@
 # pedia
 
-**Deterministic knowledge + specs + context for LLM agents.**
+**A deterministic knowledge base for LLM agents — your agentic second brain.**
 
-Pedia is the third leg of the agent-infrastructure tripod:
+Pedia indexes any corpus of markdown (specs, notes, research, lore, journal entries, policies — anything) at the **block level** with stable content-hash IDs, wiki-style symbol linking, and BM25 search. Agents query it deterministically: same question + same corpus = same cited answer, every time.
+
+## What it's for
+
+Pedia is a general-purpose knowledge tool. Five illustrative use cases:
+
+### 1. Software specifications + internal docs
+Specs, PRDs, technical requirements, ADRs, constitution, north stars. Agents cite the **exact block** they worked from; spec drift detection fires when documents change under in-flight work; constitutional invariants auto-advertise via universal-context so agents don't forget them.
+```
+pedia show --for HW-0042   # spec sections this ticket consumes + cited decisions
+pedia trace <block> --up   # what led to this being written?
+```
+
+### 2. Research notebook (academic or technical)
+Paper summaries, experiment logs, hypotheses, literature reviews. Wiki-link `[[Hypothesis: fast-path saturates]]` across notes; the trace graph surfaces which experiments support vs contradict a hypothesis; your assistant always knows what question you're investigating.
+```
+pedia query "eventual consistency under partition" --type paper-note,experiment-log
+pedia trace <hypothesis-block> --down   # everything that tested this
+```
+
+### 3. Business strategy + company wiki
+OKRs, strategic bets, competitor analysis, market research, meeting decisions. ADRs are first-class for business choices, not just engineering. A new executive can `pedia show --universal-context` + `pedia query "pricing strategy"` and get the full decision chain in one session — why we bet on X, what signals justified it, who owned it.
+
+### 4. Personal second brain (PKM)
+Book notes, journal entries, learnings, quotes, ideas. Obsidian-style wiki-linking, but with **deterministic agent access** — your AI assistant queries via CLI instead of you curating prompts. Universal-context carries your personal north stars ("learning Rust", "writing a novel about X"); the assistant cites which of your notes it's drawing from.
+```
+pedia query "deliberate practice" --type book-note,journal
+```
+
+### 5. Fiction / game world-building
+Characters, locations, lore, plot threads, timelines, magic-system rules. Wiki-linking is native — every character and place is a block; `[[Prince Elwin]]` resolves across every scene. Universal-context = world invariants ("magic works only at dawn"). `pedia check` finds continuity errors — unresolved references mean lore gaps.
+```
+pedia query "Prince Elwin" --type character
+pedia trace <plot-thread> --down   # every scene downstream of this beat
+```
+
+## The agent-infrastructure trio
+
+Pedia is one of three sibling tools:
 
 | Product | Answers |
 |---|---|
@@ -10,9 +48,9 @@ Pedia is the third leg of the agent-infrastructure tripod:
 | [hopewell](https://github.com/ocgully/hopewell) | What work is happening? Who owns it? What's blocked? |
 | **pedia** | What do we know? What have we decided? What are we trying to build, and why? |
 
-Each is a CLI + storage convention. Each is deterministic (structured data, not "ask the LLM"). Each is agent-first.
+Each is a CLI + storage convention. Each is deterministic (structured data, not "ask the LLM"). Each is agent-first. Software is the first-class use case; nothing about the engine is software-specific.
 
-See the authoritative design document in AgentFactory at `patterns/drafts/pedia-plan.md` for the full picture. Phase-1 scope (this release) covers indexing, symbol linking, traceability, incremental refresh, and Claude Code / git hook integration. The human-facing web UI is explicitly phase-2 (HW-0046).
+Phase-1 scope (this release) covers indexing, symbol linking, traceability, incremental refresh, and Claude Code / git hook integration.
 
 ---
 
