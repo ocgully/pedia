@@ -478,6 +478,12 @@ def handle_trace(root: Path, block_id: str, depth: int = 5) -> Optional[Dict[str
 
 
 DEFAULT_EXTERNAL_LINKS = {
+    # TaskFlow (formerly Hopewell). Both keys are present so existing
+    # pedia configs with `hopewell` continue to work after the rebrand.
+    "taskflow": {
+        "template": "http://localhost:8765/#/doc/{id}",
+        "link_when": "block front-matter has `taskflow_id` (or legacy `hopewell_id`) OR block cites [[tf:TF-NNNN]] or [[hw:HW-NNNN]]",
+    },
     "hopewell": {
         "template": "http://localhost:8765/#/doc/{id}",
         "link_when": "block front-matter has `hopewell_id` OR block cites [[hw:HW-NNNN]]",

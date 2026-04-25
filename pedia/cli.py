@@ -149,6 +149,11 @@ query:
 # External-system deep-link templates (used by `pedia web`).
 # The wiki advertises the URL; it does not fetch external content.
 external_links:
+  # TaskFlow (formerly Hopewell). The legacy `hopewell` key is also
+  # honoured by the wiki for backwards compat with existing pedia configs.
+  taskflow:
+    template: "http://localhost:8765/#/doc/{id}"
+    link_when: "block front-matter has taskflow_id (or legacy hopewell_id) OR block cites [[tf:TF-NNNN]] or [[hw:HW-NNNN]]"
   hopewell:
     template: "http://localhost:8765/#/doc/{id}"
     link_when: "block front-matter has hopewell_id OR block cites [[hw:HW-NNNN]]"

@@ -67,7 +67,10 @@ _SKIP_DIRS = frozenset({
     ".pytest_cache", ".mypy_cache", ".ruff_cache",
     ".idea", ".vscode",
     # don't re-ingest our own output or sibling-tool storage
-    ".pedia", ".hopewell", ".mercator", ".codemap",
+    ".pedia",
+    ".taskflow", ".hopewell",       # taskflow (formerly hopewell)
+    ".codeatlas", ".mercator", ".codemap",  # codeatlas (formerly mercator/codemap)
+    ".diffsextant", ".sextant",     # diffsextant (formerly sextant)
     # bundle output of build-bundle.sh etc.
     ".claude",
 })
