@@ -2,6 +2,10 @@
 
 **A deterministic knowledge base for LLM agents — your agentic second brain.**
 
+> **Flotilla plugin.** Pedia ships a `plugin/` directory + `flotilla.yaml`
+> at the repo root, so downstream projects can install it via
+> `flotilla install pedia`. See [`plugin/README.md`](plugin/README.md).
+
 Pedia indexes any corpus of markdown (specs, notes, research, lore, journal entries, policies — anything) at the **block level** with stable content-hash IDs, wiki-style symbol linking, and BM25 search. Agents query it deterministically: same question + same corpus = same cited answer, every time.
 
 ## What it's for

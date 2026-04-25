@@ -1,0 +1,31 @@
+# Pedia as a Flotilla plugin.
+#
+# `flotilla install pedia` pip-installs Pedia and composes the
+# contributions below into the consumer project's .claude/.
+#
+# See https://github.com/ocgully/pedia for the underlying tool.
+
+name: pedia
+version: 0.3.0
+description: Deterministic knowledge + specs + context for LLM agents
+homepage: https://github.com/ocgully/pedia
+license: Apache-2.0
+kind: tool
+
+python_package:
+  name: pedia
+  extras: []
+
+contributes:
+  agents: plugin/agents/
+  commands: plugin/commands/
+
+# No on_install steps by default — the consumer can run `pedia init`
+# manually if they want a starter knowledge base. Pedia itself does
+# not ship git hooks (queries are read-only on the file tree).
+
+tags:
+  - knowledge-base
+  - specs
+  - ai-agents
+  - sqlite
