@@ -68,9 +68,9 @@ _SKIP_DIRS = frozenset({
     ".idea", ".vscode",
     # don't re-ingest our own output or sibling-tool storage
     ".pedia",
-    ".taskflow", ".hopewell",       # taskflow (formerly hopewell)
-    ".codeatlas", ".mercator", ".codemap",  # codeatlas (formerly mercator/codemap)
-    ".diffsextant", ".sextant",     # diffsextant (formerly sextant)
+    ".taskflow", ".hopewell",       # taskflow + legacy alias
+    ".codeatlas", ".mercator", ".codemap",  # codeatlas + legacy aliases
+    ".diffsextant", ".sextant",     # diffsextant + legacy alias
     # bundle output of build-bundle.sh etc.
     ".claude",
 })

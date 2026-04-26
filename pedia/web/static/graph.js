@@ -1,8 +1,8 @@
 // Graph view — interactive dep/prov graph around a block.
 //
-// Mirrors the Hopewell HW-0042 canvas stack exactly:
+// Mirrors the TaskFlow TF-0042 canvas stack exactly:
 //   * React Flow v12 via esm.sh with preact/compat alias
-//   * elkjs layered layout (LR), same options Hopewell uses
+//   * elkjs layered layout (LR), same options TaskFlow uses
 //   * Custom node type with left/right Handles so edges terminate on
 //     anchors rather than floating around a rect boundary.
 
@@ -69,7 +69,7 @@ const nodeTypes = { pediaBlock: PediaBlockNode };
 
 // --- elkjs layered layout. Input is a {nodes, edges} pair from our API,
 //     output mutates node.position. Same algorithm + spacing values
-//     Hopewell uses so visuals stay consistent across products.
+//     TaskFlow uses so visuals stay consistent across products.
 async function layoutWithElk(nodes, edges) {
   const nodeSize = (n) => {
     // rough: wider label -> wider node

@@ -1,6 +1,6 @@
 """Git post-commit + Claude Code hook installers.
 
-Sentinel: `# pedia:managed` -- same pattern Hopewell uses so we can
+Sentinel: `# pedia:managed` -- same pattern TaskFlow uses so we can
 round-trip install / uninstall without touching other hooks.
 """
 from __future__ import annotations

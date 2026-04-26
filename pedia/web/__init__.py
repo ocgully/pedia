@@ -9,7 +9,7 @@ through the `pedia` CLI or direct markdown edits. No auth, no
 multi-user editing, no external content fetching (external systems are
 surfaced as clickable URLs only).
 
-Stack mirrors the Hopewell canvas (HW-0042):
+Stack mirrors the TaskFlow canvas (TF-0042):
 
   * stdlib http.server + sqlite3 + json on the server
   * Preact@10.22.0 via esm.sh, no bundler

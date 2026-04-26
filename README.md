@@ -48,8 +48,8 @@ Pedia is one of three sibling tools:
 
 | Product | Answers |
 |---|---|
-| [codeatlas](https://github.com/ocgully/mercator) (formerly mercator) | What is the shape of the code? Where does X live? What depends on Y? |
-| [taskflow](https://github.com/ocgully/hopewell) (formerly hopewell) | What work is happening? Who owns it? What's blocked? |
+| [codeatlas](https://github.com/ocgully/codeatlas) | What is the shape of the code? Where does X live? What depends on Y? |
+| [taskflow](https://github.com/ocgully/taskflow) | What work is happening? Who owns it? What's blocked? |
 | **pedia** | What do we know? What have we decided? What are we trying to build, and why? |
 
 Each is a CLI + storage convention. Each is deterministic (structured data, not "ask the LLM"). Each is agent-first. Software is the first-class use case; nothing about the engine is software-specific.
@@ -108,7 +108,7 @@ Features:
 - **Thread of impact** — `#/trace/<id>` walks upstream AND downstream
   from a block, showing every source and every consumer per layer.
 - **External-system deep links** — configurable outbound URI templates
-  in `.pedia/config.yaml` (taskflow / hopewell, GitHub issues, JIRA, GitHub code).
+  in `.pedia/config.yaml` (taskflow, GitHub issues, JIRA, GitHub code).
   The wiki advertises the URL; it never fetches external content.
 
 Read-only by design:
@@ -120,7 +120,7 @@ Read-only by design:
 
 Stack: stdlib `http.server` + `sqlite3` on the server; Preact +
 `marked` + `@xyflow/react` via esm.sh on the client. Same dependency
-set as the Hopewell canvas so the two tools look and feel consistent.
+set as the TaskFlow canvas so the two tools look and feel consistent.
 
 ## CLI reference
 

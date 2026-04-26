@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pedia"
 version = "0.3.0"
-description = "Deterministic knowledge + specs + context for LLM agents. Third leg of the agent-infrastructure tripod alongside mercator (code) and hopewell (work)."
+description = "Deterministic knowledge + specs + context for LLM agents. Third leg of the agent-infrastructure tripod alongside codeatlas (code) and taskflow (work)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }

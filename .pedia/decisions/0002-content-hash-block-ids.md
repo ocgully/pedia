@@ -87,7 +87,7 @@ Negative:
 - Mitigation: cite via `[[Term]]`, `[[type:slug]]`, or
   `[[path#heading]]` for cross-references that should survive edits.
   Reserve `[[block:<id>]]` for "I cite the exact bytes" cases (e.g.,
-  Hopewell `spec-ref`s where drift detection is desirable).
+  TaskFlow `spec-ref`s where drift detection is desirable).
 
 The constitution captures this tradeoff in
 [[Content-Hash Block ID]].

@@ -1,6 +1,6 @@
 """Stdlib http.server for `pedia web` (HW-0046).
 
-Design notes (mirrors Hopewell's web/server.py, minus SSE):
+Design notes (mirrors TaskFlow's web/server.py, minus SSE):
 
 * Stdlib-only. `http.server` + `sqlite3` + `json` + `pathlib`. No
   FastAPI, no watchdog, no SSE. Pedia is commit-paced -- if the index
@@ -333,7 +333,7 @@ DOC_TYPE_RANK = {
 def handle_graph(root: Path, block_id: str, depth: int = 2) -> Optional[Dict[str, Any]]:
     """BFS a neighborhood around `block_id` (both directions) up to `depth`
     and return React-Flow-shaped {nodes, edges}. Client lays out with
-    elkjs using its layered algorithm (same as the Hopewell canvas).
+    elkjs using its layered algorithm (same as the TaskFlow canvas).
     """
     conn = idx.connect(cfg.db_path(root))
     try:
@@ -478,8 +478,8 @@ def handle_trace(root: Path, block_id: str, depth: int = 5) -> Optional[Dict[str
 
 
 DEFAULT_EXTERNAL_LINKS = {
-    # TaskFlow (formerly Hopewell). Both keys are present so existing
-    # pedia configs with `hopewell` continue to work after the rebrand.
+    # TaskFlow. Both keys are present so existing pedia configs with
+    # `hopewell` continue to work as a backwards-compat alias.
     "taskflow": {
         "template": "http://localhost:8765/#/doc/{id}",
         "link_when": "block front-matter has `taskflow_id` (or legacy `hopewell_id`) OR block cites [[tf:TF-NNNN]] or [[hw:HW-NNNN]]",

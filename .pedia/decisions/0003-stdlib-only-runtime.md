@@ -15,7 +15,7 @@ Accepted.
 ## Context
 
 Pedia targets developer laptops, CI workers, and air-gapped servers.
-It is one of three sibling tools (mercator, hopewell, pedia) sharing
+It is one of three sibling tools (codeatlas, taskflow, pedia) sharing
 an install posture. Every runtime dependency is a long-term tax —
 security advisories, version pinning, install latency, offline
 breakage.

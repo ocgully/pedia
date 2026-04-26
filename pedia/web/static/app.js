@@ -8,7 +8,7 @@
 //   #/graph/<id>    -> graph view anchored on block <id>
 //   #/trace/<id>    -> thread-of-impact view (up + down)
 //
-// Preact is loaded via esm.sh (same pin as Hopewell so the two UIs
+// Preact is loaded via esm.sh (same pin as TaskFlow so the two UIs
 // share a single preact instance when a dev opens both). No bundler,
 // no npm — every dependency is a direct ESM import.
 

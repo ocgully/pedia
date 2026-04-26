@@ -220,11 +220,13 @@ export function ExternalPanel({ docMeta, templates }) {
   docMeta = docMeta || {};
 
   const links = [];
-  // hopewell: if docMeta has hopewell_id, fill {id}
-  if (templates.hopewell && docMeta.hopewell_id) {
+  // taskflow: if docMeta has taskflow_id (or legacy hopewell_id), fill {id}
+  const tfTpl = templates.taskflow || templates.hopewell;
+  const tfId = docMeta.taskflow_id || docMeta.hopewell_id;
+  if (tfTpl && tfId) {
     links.push({
-      label: "Hopewell " + docMeta.hopewell_id,
-      href: templates.hopewell.template.replace("{id}", docMeta.hopewell_id),
+      label: "TaskFlow " + tfId,
+      href: tfTpl.template.replace("{id}", tfId),
     });
   }
   // github_issues: if docMeta has github_issue (and github_repo or templates.github_issues.repo)

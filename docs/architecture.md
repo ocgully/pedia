@@ -238,7 +238,7 @@ bytes. No embedding, no ranking model, no semantic rewrite.
 
 Preact 10.22 + `marked` 12 + `@xyflow/react` 12.3.6 + `elkjs` 0.9.3,
 all loaded as ES modules from esm.sh. No bundler; no npm; no build
-step. The graph view uses the exact same incantation the Hopewell
+step. The graph view uses the exact same incantation the TaskFlow
 canvas uses (`?alias=react:preact/compat,react-dom:preact/compat&deps=preact@10.22.0`)
 so opening both UIs in one browser doesn't produce two preact
 instances with cross-talking hook registries.
@@ -262,7 +262,7 @@ survives tokenization intact.
 
 Configurable in `.pedia/config.yaml` under `external_links`. A template
 activates when the doc's front-matter carries the matching key
-(`hopewell_id`, `github_issue`/`issue_id`, `jira_key`, `source_path`).
+(`taskflow_id`, `github_issue`/`issue_id`, `jira_key`, `source_path`).
 The UI advertises the URL; it never fetches external content. The wiki
 stays offline-first.
 
