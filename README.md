@@ -42,6 +42,33 @@ pedia query "Prince Elwin" --type character
 pedia trace <plot-thread> --down   # every scene downstream of this beat
 ```
 
+## Doc types — opinionated defaults, user-extensible
+
+Pedia ships nine doc types with strict schemas: `spec`, `decision`, `north-star`, `constitution`, `prd`, `technical-requirement` (alias `tr`), `plan`, `documentation`, `vision`. These are the **opinionated common types** — they cover most software-shaped corpora out of the box and `pedia check` validates them against type-specific rules.
+
+**Any other type works.** Pedia is corpus-agnostic. Set `type: <whatever>` in a doc's front-matter (`paper-note`, `meeting-minutes`, `journal`, `character`, `recipe`, `okr`, anything) and the indexer treats it as first-class:
+
+- The block index stores the type verbatim.
+- `pedia query --type paper-note,journal` filters by it.
+- Wiki links of the form `[[paper-note:dft-2024]]` resolve through the index.
+- `pedia trace` walks the citation graph regardless of type.
+- `pedia check` falls back to a permissive validator for unknown types — wiki-link integrity and front-matter shape are still checked; type-specific rules are skipped.
+
+To declare your own types as a project convention, list them in `.pedia/config.yaml`:
+
+```yaml
+doc_types:
+  custom:
+    - paper-note
+    - experiment-log
+    - meeting-minutes
+    - journal
+```
+
+The `custom:` list is purely documentary today — Pedia accepts unknown types whether they're listed or not. Listing them is for human readers + linting tools that want to flag typos (`paper-not` vs `paper-note`).
+
+Custom types use the permissive validator today. Strict per-type validation for project-defined types — a `.pedia/doctypes/<name>.py` plug-in registry — is on the roadmap. If you need it sooner, a built-in type with permissive content (e.g., `documentation`) is usually a workable substitute.
+
 ## The agent-infrastructure trio
 
 Pedia is one of three sibling tools:
@@ -208,6 +235,28 @@ Four forms:
 4. `[[block:<id>]]` - direct content-hash lookup
 
 `pedia check` surfaces unresolved and ambiguous links.
+
+## The index is a derivative cache — never commit it
+
+`.pedia/index.sqlite` is generated, not authored. It is rebuildable in seconds from the markdown files alongside it, so it has no business in version control:
+
+- **Don't commit it.** `pedia init` writes a `.pedia/.gitignore` that excludes `index.sqlite` (and the FTS5 sidecar files SQLite produces). If you adopt Pedia in an existing repo, add `**/index.sqlite` and friends to your top-level `.gitignore`.
+- **Don't try to merge it.** Two branches produce two valid indexes; the right resolution is "discard both and rebuild," not three-way merge a binary blob.
+- **Don't cache it in CI.** A full `pedia refresh` on a clean checkout takes a couple of seconds for thousands of blocks. CI cache plumbing costs more time than it saves.
+- **Do install the hooks** so the index stays fresh without manual intervention:
+
+```bash
+pedia hooks install --git
+```
+
+This installs two hooks:
+
+- `post-commit` → `pedia refresh` (incremental, keeps the index in sync with the working tree)
+- `post-checkout` → `pedia refresh` on **branch switches only** (file-checkouts skip — a single-file checkout doesn't change corpus shape)
+
+A fresh clone or a branch switch with no hooks still works — the index is just stale until the next manual `pedia refresh` (or until any of: post-commit fires, the Claude Code Stop hook fires if you also passed `--claude-code`, the wiki view triggers a refresh on first request).
+
+**Mental model:** specs in markdown are the source of truth; the index is the read replica. Replicas are built, not stored.
 
 ## Architecture
 

@@ -468,6 +468,8 @@ def cmd_hooks_install(args) -> int:
         if (root / ".git").exists():
             path = hooks_mod.install_git_hook(root)
             sys.stdout.write(f"Installed git post-commit hook -> {path}\n")
+            pc_path = hooks_mod.install_git_post_checkout_hook(root)
+            sys.stdout.write(f"Installed git post-checkout hook -> {pc_path}\n")
             did_anything = True
         else:
             sys.stdout.write(f"(skipping git hook: no .git dir at {root})\n")
@@ -499,6 +501,11 @@ def cmd_hooks_uninstall(args) -> int:
             any_removed = True
         else:
             sys.stdout.write("No pedia-managed git post-commit hook to remove\n")
+        if hooks_mod.uninstall_git_post_checkout_hook(root):
+            sys.stdout.write("Removed pedia git post-checkout hook\n")
+            any_removed = True
+        else:
+            sys.stdout.write("No pedia-managed git post-checkout hook to remove\n")
     if args.claude_code:
         if args.settings_path:
             settings_path = Path(args.settings_path).resolve()

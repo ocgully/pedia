@@ -164,30 +164,40 @@ exit 0
 """
 
 
-def install_git_hook(root: Path) -> Path:
-    """Write `.git/hooks/post-commit` pointing at `pedia refresh`.
+# Git's post-checkout hook receives three args: $1=prev_head $2=new_head
+# $3=flag (1=branch switch, 0=file checkout). Only branch switches need a
+# refresh — file checkouts of single paths don't change the corpus shape.
+GIT_POST_CHECKOUT_TEMPLATE = """#!/bin/sh
+{marker}
+# Refresh pedia index after a branch switch so a freshly switched
+# branch has a fresh index without manual action. Skip on file
+# checkouts (flag=$3 == 0). Safe no-op if pedia isn't installed.
+if [ "$3" = "1" ]; then
+    if command -v pedia >/dev/null 2>&1; then
+        pedia refresh >/dev/null 2>&1 || true
+    elif command -v python >/dev/null 2>&1; then
+        python -m pedia refresh >/dev/null 2>&1 || true
+    fi
+fi
+exit 0
+"""
 
-    Preserves any pre-existing non-pedia post-commit hook by appending
-    if the sentinel isn't already present. If the file already contains
-    the sentinel, we rewrite only our block.
-    """
+
+def _install_named_git_hook(root: Path, name: str, template: str) -> Path:
     git_dir = _git_dir_for(root)
     hooks_dir = git_dir / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
-    hook_path = hooks_dir / "post-commit"
+    hook_path = hooks_dir / name
 
-    template = GIT_HOOK_TEMPLATE.format(marker=HOOK_MARKER)
+    rendered = template.format(marker=HOOK_MARKER)
     if hook_path.is_file():
         existing = hook_path.read_text(encoding="utf-8", errors="replace")
         if HOOK_MARKER in existing:
-            # rewrite (simplest: replace file)
-            hook_path.write_text(template, encoding="utf-8")
+            hook_path.write_text(rendered, encoding="utf-8")
         else:
-            # append a new block after the existing content
-            suffix = "\n" + template
-            hook_path.write_text(existing + suffix, encoding="utf-8")
+            hook_path.write_text(existing + "\n" + rendered, encoding="utf-8")
     else:
-        hook_path.write_text(template, encoding="utf-8")
+        hook_path.write_text(rendered, encoding="utf-8")
 
     try:
         st = hook_path.stat()
@@ -197,24 +207,37 @@ def install_git_hook(root: Path) -> Path:
     return hook_path
 
 
-def uninstall_git_hook(root: Path) -> bool:
+def _uninstall_named_git_hook(root: Path, name: str, template: str) -> bool:
     git_dir = _git_dir_for(root)
-    hook_path = git_dir / "hooks" / "post-commit"
+    hook_path = git_dir / "hooks" / name
     if not hook_path.is_file():
         return False
     txt = hook_path.read_text(encoding="utf-8", errors="replace")
     if HOOK_MARKER not in txt:
         return False
-    # If the file is ONLY our block, delete it. Otherwise strip just
-    # our block (crude: rewrite lines not containing the marker and
-    # surrounding our template). Simpler: if file equals template,
-    # delete; else leave alone with a note.
-    template = GIT_HOOK_TEMPLATE.format(marker=HOOK_MARKER)
-    if txt.strip() == template.strip():
+    rendered = template.format(marker=HOOK_MARKER)
+    if txt.strip() == rendered.strip():
         hook_path.unlink()
         return True
-    # leave intact but flag
     return False
+
+
+def install_git_hook(root: Path) -> Path:
+    """Write `.git/hooks/post-commit` pointing at `pedia refresh`."""
+    return _install_named_git_hook(root, "post-commit", GIT_HOOK_TEMPLATE)
+
+
+def uninstall_git_hook(root: Path) -> bool:
+    return _uninstall_named_git_hook(root, "post-commit", GIT_HOOK_TEMPLATE)
+
+
+def install_git_post_checkout_hook(root: Path) -> Path:
+    """Write `.git/hooks/post-checkout` so branch switches refresh the index."""
+    return _install_named_git_hook(root, "post-checkout", GIT_POST_CHECKOUT_TEMPLATE)
+
+
+def uninstall_git_post_checkout_hook(root: Path) -> bool:
+    return _uninstall_named_git_hook(root, "post-checkout", GIT_POST_CHECKOUT_TEMPLATE)
 
 
 def _git_dir_for(root: Path) -> Path:
